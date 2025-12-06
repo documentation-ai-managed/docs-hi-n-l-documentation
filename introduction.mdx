@@ -1,0 +1,92 @@
+---
+title: Introduction
+description: Overview of Product Hunt and its core capabilities
+---
+
+## Getting Started
+
+Product Hunt is an innovative platform that curates and showcases the most cutting-edge products in startups, technology, and product development. It serves as the go-to destination for discovering new mobile apps, websites, and technological advancements that are shaping the industry. By delivering a daily dose of top tech products directly to users' inboxes, Product Hunt ensures you stay informed about the latest innovations and creative solutions.
+
+The platform connects makers with users through curated product launches, reviews, and community discussions. Whether you're a developer looking to launch your next big idea or a user seeking the latest tools, Product Hunt provides the tools and insights needed to navigate the rapidly evolving world of technology.
+
+<Columns cols={3}>
+  <Card title="Discover Products" icon="search" href="#discover">
+    Explore thousands of innovative products across categories like mobile apps, websites, and software tools.
+  </Card>
+  <Card title="Launch Your Product" icon="rocket" href="#launch">
+    Submit your creation to our community of tech enthusiasts and get valuable feedback.
+  </Card>
+  <Card title="Stay Updated" icon="bell" href="#updates">
+    Receive daily notifications about trending products and industry trends.
+  </Card>
+</Columns>
+
+## Key Features
+
+Product Hunt offers a comprehensive suite of features designed to enhance product discovery and community engagement. Users can browse products by category, view detailed descriptions, and read authentic reviews from the community. The platform supports both daily and weekly rankings, helping users identify the most promising new releases.
+
+Developers benefit from tools that allow them to track their product's performance, engage with users through comments and discussions, and gain insights into market trends. With integrations available for various platforms, Product Hunt seamlessly connects with your existing workflow.
+
+<Tabs>
+  <Tab title="For Users" icon="users">
+    <Steps>
+      <Step title="Sign Up" icon="user-plus">
+        Create your free account to start exploring products.
+      </Step>
+      <Step title="Browse Categories" icon="grid">
+        Discover products across mobile apps, websites, and software.
+      </Step>
+      <Step title="Engage" icon="message-circle">
+        Leave reviews, upvote your favorites, and join discussions.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="For Makers" icon="code">
+    <Steps>
+      <Step title="Prepare Your Product" icon="package">
+        Ensure your product has a landing page and clear value proposition.
+      </Step>
+      <Step title="Submit" icon="send">
+        Launch your product on Product Hunt during eligible time slots.
+      </Step>
+      <Step title="Engage" icon="users">
+        Respond to feedback and build community around your product.
+      </Step>
+    </Steps>
+  </Tab>
+</Tabs>
+
+## API Capabilities
+
+The Product Hunt API provides programmatic access to product data, user information, and platform analytics. Developers can integrate Product Hunt functionality into their applications, automate workflows, and build custom dashboards for tracking product performance.
+
+<CodeGroup tabs="JavaScript,Python">
+  ````javascript
+const response = await fetch('/api/products');
+const products = await response.json();
+console.log(products);
+````
+  ````python
+import requests
+response = requests.get('/api/products')
+products = response.json()
+print(products)
+````
+</CodeGroup>
+
+## Community and Support
+
+Product Hunt fosters a vibrant community of makers and users who share a passion for innovation. Through comments, discussions, and collaborative features, members can exchange ideas, provide feedback, and support each other's projects. The platform also offers comprehensive documentation and support resources to help users make the most of their experience.
+
+<Expandable title="Frequently Asked Questions" default-open="false">
+  ## How do I submit a product?
+  Product submissions are open during specific time windows. Prepare your product's details and ensure it meets our guidelines before submitting.
+  
+  ## Is Product Hunt free to use?
+  Yes, basic browsing and community participation is completely free. Premium features are available for advanced users.
+  
+  ## How are products ranked?
+  Products are ranked based on community upvotes, reviews, and algorithmic factors that consider engagement and relevance.
+</Expandable>
+
+<Callout kind="tip">Join our community to stay updated on the latest product launches and connect with fellow innovators.</Callout>

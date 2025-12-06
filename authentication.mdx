@@ -1,0 +1,122 @@
+---
+title: Authentication
+description: Learn how to authenticate with the Product Hunt API
+---
+
+## Overview
+
+Authentication is the foundation of secure API interactions with Product Hunt. Whether you're building integrations, accessing user data, or managing product listings, proper authentication ensures your requests are authorized and your data remains protected. This guide covers the different authentication methods available, including API keys, OAuth flows, and best practices for secure implementation.
+
+Understanding authentication helps developers build robust applications that integrate seamlessly with Product Hunt's platform. From simple API key authentication for basic operations to OAuth for user-specific actions, we provide flexible options to suit various use cases.
+
+<Steps>
+  <Step title="Register Your Application" icon="user-plus">
+    Create an account on the Product Hunt developer portal and register your application to obtain API credentials.
+  </Step>
+  <Step title="Choose Authentication Method" icon="settings">
+    Select between API key authentication for server-side operations or OAuth for user-authorized access.
+  </Step>
+  <Step title="Implement Authentication" icon="code">
+    Integrate the chosen authentication method into your application using the provided SDKs or direct API calls.
+  </Step>
+  <Step title="Test and Validate" icon="check-circle">
+    Verify your authentication setup works correctly before deploying to production.
+  </Step>
+</Steps>
+
+## API Key Authentication
+
+For server-to-server communications and operations that don't require user-specific permissions, API key authentication provides a straightforward solution. API keys are generated through your developer dashboard and should be stored securely as environment variables.
+
+<CodeGroup tabs="JavaScript,Python,cURL">
+  ````javascript
+const apiKey = process.env.PRODUCT_HUNT_API_KEY;
+const response = await fetch('/api/products', {
+  headers: {
+    'Authorization': `Bearer ${apiKey}`,
+    'Content-Type': 'application/json'
+  }
+});
+const data = await response.json();
+````
+  ````python
+import os
+import requests
+
+api_key = os.getenv('PRODUCT_HUNT_API_KEY')
+headers = {
+  'Authorization': f'Bearer {api_key}',
+  'Content-Type': 'application/json'
+}
+response = requests.get('/api/products', headers=headers)
+data = response.json()
+````
+  ````bash
+curl -H "Authorization: Bearer $PRODUCT_HUNT_API_KEY" \
+     -H "Content-Type: application/json" \
+     https://api.producthunt.com/api/products
+````
+</CodeGroup>
+
+## OAuth 2.0 Authentication
+
+When your application needs to perform actions on behalf of users, OAuth 2.0 provides a secure, standardized approach. This method allows users to grant specific permissions without sharing their credentials directly with your application.
+
+<Tabs>
+  <Tab title="Authorization Code Flow" icon="lock">
+    For web applications, this flow provides the highest level of security by exchanging authorization codes for access tokens.
+    
+    <Steps>
+      <Step title="Redirect to Authorization" icon="external-link">
+        Direct users to the Product Hunt authorization endpoint with your client ID and requested scopes.
+      </Step>
+      <Step title="User Consent" icon="user-check">
+        Users review and approve the requested permissions.
+      </Step>
+      <Step title="Exchange Code" icon="refresh-cw">
+        Your application exchanges the authorization code for an access token.
+      </Step>
+    </Steps>
+  </Tab>
+  <Tab title="Implicit Flow" icon="zap">
+    Suitable for client-side applications, this flow returns access tokens directly without an intermediate code exchange.
+    
+    <Callout kind="alert">Use implicit flow only when authorization code flow is not feasible, as it exposes tokens in the browser.</Callout>
+  </Tab>
+</Tabs>
+
+## Security Best Practices
+
+Implementing authentication securely requires attention to several key areas. Always use HTTPS for all API communications, store sensitive credentials securely, and implement proper token refresh mechanisms.
+
+<Expandable title="Token Management" default-open="true">
+  Access tokens have limited lifetimes and should be refreshed automatically. Implement token storage that protects against unauthorized access, using secure storage mechanisms appropriate for your platform.
+  
+  <Expandable title="Rate Limiting" default-open="false">
+    Be aware of API rate limits and implement appropriate backoff strategies. Monitor your usage through the developer dashboard.
+  </Expandable>
+</Expandable>
+
+<Callout kind="danger">Never store API keys or access tokens in publicly accessible locations such as client-side code, version control systems, or configuration files that may be exposed.</Callout>
+
+## Troubleshooting Authentication Issues
+
+Common authentication problems include expired tokens, incorrect API keys, and scope mismatches. Always check error responses for detailed information about authentication failures.
+
+| Error Code | Description | Resolution |
+|------------|-------------|------------|
+| `401` | Unauthorized | Verify your API key or token is valid and properly formatted |
+| `403` | Forbidden | Check if you have the required permissions for the requested operation |
+| `429` | Too Many Requests | Implement rate limiting and retry with exponential backoff |
+
+<ExpandableGroup>
+  <Expandable title="Why am I getting a 401 error?" default-open="false">
+    A 401 Unauthorized error typically indicates an invalid or missing authentication credential. Double-check that your API key is correct and properly formatted in the Authorization header.
+  </Expandable>
+  <Expandable title="My OAuth tokens keep expiring" default-open="false">
+    Access tokens have limited lifetimes for security. Implement automatic token refresh using the refresh token provided during the initial authorization flow.
+  </Expandable>
+  <Expandable title="Can I use the same API key for multiple applications?" default-open="false">
+    While technically possible, it's not recommended. Each application should have its own API key for better security and usage tracking.
+  </Expandable>
+</ExpandableGroup>

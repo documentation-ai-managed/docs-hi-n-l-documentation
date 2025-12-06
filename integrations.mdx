@@ -1,0 +1,161 @@
+---
+title: Integrations
+description: Connect Product Hunt with your favorite tools and platforms
+---
+
+## Overview
+
+Product Hunt integrations allow you to connect our platform with your existing workflow, automating data synchronization and enhancing productivity. Whether you're using project management tools, communication platforms, or development environments, our integrations help you stay connected to product launches and community feedback.
+
+From webhook notifications to API integrations, we provide flexible options for developers and teams to incorporate Product Hunt data into their applications. This guide covers available integration methods, setup procedures, and best practices for building reliable connections.
+
+<Columns cols={2}>
+  <Card title="Webhooks" icon="webhook" href="#webhooks">
+    Receive real-time notifications about product launches, reviews, and community activity.
+  </Card>
+  <Card title="API Integrations" icon="api" href="#api-integrations">
+    Build custom integrations using our REST API for comprehensive data access.
+  </Card>
+</Columns>
+
+## Webhook Integrations
+
+Webhooks provide real-time notifications when events occur on Product Hunt, such as new product launches, user reviews, or ranking changes. Configure webhook endpoints to receive HTTP POST requests with event data in JSON format.
+
+<Steps>
+  <Step title="Create Webhook Endpoint" icon="server">
+    Set up an HTTPS endpoint in your application that can receive and process webhook payloads.
+  </Step>
+  <Step title="Configure Webhook URL" icon="settings">
+    Register your endpoint URL in the Product Hunt developer dashboard and select event types to monitor.
+  </Step>
+  <Step title="Implement Security" icon="shield">
+    Verify webhook signatures to ensure requests originate from Product Hunt.
+  </Step>
+  <Step title="Handle Events" icon="message-circle">
+    Process incoming webhook data and trigger appropriate actions in your application.
+  </Step>
+</Steps>
+
+### Webhook Event Types
+
+Product Hunt supports various webhook events to keep your integrations informed about platform activity. Each event type includes specific data payloads that provide context about the triggered action.
+
+<Tabs>
+  <Tab title="Product Events" icon="package">
+    | Event | Description |
+    |-------|-------------|
+    | `product.launched` | New product submitted to the platform |
+    | `product.ranked` | Product ranking updated |
+    | `product.featured` | Product featured on homepage |
+  </Tab>
+  <Tab title="User Events" icon="users">
+    | Event | Description |
+    |-------|-------------|
+    | `user.reviewed` | User submitted a product review |
+    | `user.followed` | User followed another user or product |
+    | `user.achievement` | User earned a platform achievement |
+  </Tab>
+</Tabs>
+
+<CodeGroup tabs="JavaScript,Python">
+  ````javascript
+// Example webhook payload for product launch
+const payload = {
+  event: 'product.launched',
+  data: {
+    product_id: '123',
+    name: 'Amazing App',
+    description: 'A revolutionary new application',
+    launched_at: '2024-01-15T10:00:00Z'
+  },
+  signature: 'sha256=abc123...'
+};
+
+// Verify signature
+const crypto = require('crypto');
+const expectedSignature = crypto
+  .createHmac('sha256', process.env.WEBHOOK_SECRET)
+  .update(JSON.stringify(payload.data))
+  .digest('hex');
+
+if (payload.signature === `sha256=${expectedSignature}`) {
+  // Process the event
+  console.log('Product launched:', payload.data.name);
+}
+````
+  ````python
+import hmac
+import hashlib
+import json
+
+# Example webhook payload for product launch
+payload = {
+    'event': 'product.launched',
+    'data': {
+        'product_id': '123',
+        'name': 'Amazing App',
+        'description': 'A revolutionary new application',
+        'launched_at': '2024-01-15T10:00:00Z'
+    },
+    'signature': 'sha256=abc123...'
+}
+
+# Verify signature
+secret = os.getenv('WEBHOOK_SECRET').encode('utf-8')
+message = json.dumps(payload['data'], separators=(',', ':')).encode('utf-8')
+expected_signature = hmac.new(secret, message, hashlib.sha256).hexdigest()
+
+if payload['signature'] == f'sha256={expected_signature}':
+    # Process the event
+    print(f'Product launched: {payload["data"]["name"]}')
+````
+</CodeGroup>
+
+## API Integrations
+
+For more advanced integrations requiring bidirectional data flow or complex operations, our REST API provides comprehensive access to Product Hunt data. Build custom applications, dashboards, or automation workflows using authenticated API calls.
+
+<Expandable title="Available Endpoints" default-open="true">
+  Our API includes endpoints for products, users, reviews, categories, and platform analytics. Each endpoint supports standard HTTP methods and returns data in JSON format.
+  
+  <Expandable title="Rate Limits" default-open="false">
+    API requests are subject to rate limiting based on your plan. Monitor the `X-RateLimit-Remaining` header to avoid exceeding limits.
+  </Expandable>
+</Expandable>
+
+<Callout kind="info">All API integrations require proper authentication. Refer to our authentication guide for setup instructions.</Callout>
+
+## Popular Integration Examples
+
+Many teams successfully integrate Product Hunt with their existing tools to streamline workflows and enhance collaboration. Here are some common integration patterns.
+
+<Tabs>
+  <Tab title="Slack Integration" icon="message-square">
+    Receive notifications about trending products directly in your team's Slack channels. Configure webhooks to post updates about products matching your interests.
+  </Tab>
+  <Tab title="Trello Integration" icon="layout">
+    Automatically create cards for new product launches that match your criteria. Use our API to sync product data with your project boards.
+  </Tab>
+  <Tab title="Zapier Integration" icon="zap">
+    Connect Product Hunt with hundreds of apps through Zapier. Create automated workflows for product research, lead generation, and team notifications.
+  </Tab>
+</Tabs>
+
+## Best Practices
+
+Building reliable integrations requires careful planning and implementation. Follow these guidelines to ensure your integrations perform consistently and securely.
+
+<ExpandableGroup>
+  <Expandable title="Error Handling" default-open="false">
+    Implement robust error handling for API failures and webhook delivery issues. Use exponential backoff for retries and monitor integration health.
+  </Expandable>
+  <Expandable title="Data Synchronization" default-open="false">
+    For bidirectional integrations, implement proper data synchronization to avoid conflicts. Use timestamps and versioning to track changes.
+  </Expandable>
+  <Expandable title="Security Considerations" default-open="false">
+    Always validate incoming data, verify webhook signatures, and use HTTPS for all communications. Store sensitive credentials securely.
+  </Expandable>
+</ExpandableGroup>
+
+<Callout kind="tip">Test your integrations thoroughly in a development environment before deploying to production.</Callout>

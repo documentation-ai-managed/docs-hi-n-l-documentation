@@ -1,0 +1,210 @@
+---
+title: Webhooks
+description: Set up real-time notifications for Product Hunt events
+---
+
+## Introduction to Webhooks
+
+Webhooks enable real-time communication between Product Hunt and your applications by sending HTTP POST requests to configured endpoints when specific events occur. This push-based mechanism eliminates the need for constant polling and ensures your systems stay updated with the latest platform activity.
+
+Whether you're tracking product launches, monitoring user engagement, or automating workflows, webhooks provide an efficient way to react to Product Hunt events as they happen. This guide covers webhook configuration, event types, security measures, and implementation best practices.
+
+<Columns cols={2}>
+  <Card title="Event-Driven" icon="zap" href="#events">
+    Receive instant notifications when important events occur on the platform.
+  </Card>
+  <Card title="Real-Time Data" icon="clock" href="#data">
+    Access fresh data without polling, improving efficiency and reducing API usage.
+  </Card>
+</Columns>
+
+## Setting Up Webhooks
+
+Configuring webhooks requires creating an HTTPS endpoint in your application and registering it with Product Hunt. The process involves several steps to ensure secure and reliable communication.
+
+<Steps>
+  <Step title="Prepare Your Endpoint" icon="server">
+    Create an HTTPS endpoint that accepts POST requests and can handle JSON payloads up to 1MB in size.
+  </Step>
+  <Step title="Generate Secret" icon="key">
+    Create a webhook secret for signature verification to ensure request authenticity.
+  </Step>
+  <Step title="Register Webhook" icon="plus">
+    Add your endpoint URL and secret to the Product Hunt developer dashboard.
+  </Step>
+  <Step title="Select Events" icon="filter">
+    Choose which event types should trigger notifications to your endpoint.
+  </Step>
+  <Step title="Test Integration" icon="check-circle">
+    Send test events from the dashboard to verify your endpoint processes them correctly.
+  </Step>
+</Steps>
+
+## Supported Event Types
+
+Product Hunt supports a comprehensive set of webhook events covering product lifecycle, user interactions, and platform activities. Each event includes relevant data to help you understand and respond to the triggered action.
+
+<Tabs>
+  <Tab title="Product Lifecycle" icon="package">
+    Events related to product creation, updates, and ranking changes.
+    
+    | Event Type | Description | Payload Includes |
+    |------------|-------------|------------------|
+    | `product.created` | New product submitted | Product details, submitter info |
+    | `product.launched` | Product goes live | Launch timestamp, initial ranking |
+    | `product.updated` | Product information changed | Changed fields, update timestamp |
+    | `product.ranked` | Daily ranking updated | New rank, previous rank, trend |
+  </Tab>
+  <Tab title="Community Activity" icon="users">
+    Events triggered by user interactions and community engagement.
+    
+    | Event Type | Description | Payload Includes |
+    |------------|-------------|------------------|
+    | `review.created` | New review posted | Review content, rating, reviewer |
+    | `review.updated` | Review modified | Changes made, update timestamp |
+    | `vote.cast` | User voted on product | Vote direction, user info |
+    | `comment.added` | Comment posted | Comment text, discussion context |
+  </Tab>
+  <Tab title="Platform Events" icon="settings">
+    System-level events and administrative notifications.
+    
+    | Event Type | Description | Payload Includes |
+    |------------|-------------|------------------|
+    | `user.banned` | User account suspended | User ID, reason, duration |
+    | `product.removed` | Product taken down | Product ID, removal reason |
+    | `category.updated` | Category structure changed | Affected categories, changes |
+  </Tab>
+</Tabs>
+
+## Webhook Payload Structure
+
+All webhook payloads follow a consistent JSON structure with event metadata, event-specific data, and security information. Understanding this structure helps you parse and validate incoming requests.
+
+<CodeGroup tabs="JSON Schema,Example Payload">
+  ````json
+{
+  "type": "object",
+  "properties": {
+    "event": {
+      "type": "string",
+      "description": "Event type identifier"
+    },
+    "id": {
+      "type": "string",
+      "description": "Unique event identifier"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp"
+    },
+    "data": {
+      "type": "object",
+      "description": "Event-specific payload data"
+    },
+    "signature": {
+      "type": "string",
+      "description": "HMAC signature for verification"
+    }
+  },
+  "required": ["event", "id", "timestamp", "data", "signature"]
+}
+````
+  ````json
+{
+  "event": "product.launched",
+  "id": "evt_1234567890",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "data": {
+    "product_id": "prod_987654321",
+    "name": "InnovativeApp",
+    "category": "Mobile Apps",
+    "description": "A groundbreaking mobile application",
+    "url": "https://innovativeapp.com",
+    "launch_date": "2024-01-15",
+    "initial_rank": 42
+  },
+  "signature": "sha256=1a2b3c4d5e6f..."
+}
+````
+</CodeGroup>
+
+## Security and Verification
+
+Webhook security is crucial to prevent malicious requests and ensure data integrity. Product Hunt uses HMAC signatures to verify that requests originate from our platform.
+
+<Expandable title="Signature Verification" default-open="true">
+  Each webhook request includes an HMAC SHA-256 signature in the `signature` field. Verify this signature using your webhook secret to confirm request authenticity.
+  
+  <CodeGroup tabs="JavaScript,Python,PHP">
+    ````javascript
+const crypto = require('crypto');
+
+function verifySignature(payload, secret, signature) {
+  const expected = crypto
+    .createHmac('sha256', secret)
+    .update(JSON.stringify(payload.data))
+    .digest('hex');
+  return `sha256=${expected}` === signature;
+}
+
+// Usage
+const isValid = verifySignature(req.body, process.env.WEBHOOK_SECRET, req.body.signature);
+````
+    ````python
+import hmac
+import hashlib
+import json
+
+def verify_signature(payload, secret, signature):
+    message = json.dumps(payload['data'], separators=(',', ':'), sort_keys=True)
+    expected = hmac.new(secret.encode(), message.encode(), hashlib.sha256).hexdigest()
+    return f'sha256={expected}' == signature
+
+# Usage
+is_valid = verify_signature(request.json, os.getenv('WEBHOOK_SECRET'), request.json['signature'])
+````
+    ````php
+function verifySignature($payload, $secret, $signature) {
+  $message = json_encode($payload['data'], JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+  $expected = hash_hmac('sha256', $message, $secret);
+  return "sha256={$expected}" === $signature;
+}
+
+// Usage
+$isValid = verifySignature($_POST, $_ENV['WEBHOOK_SECRET'], $_POST['signature']);
+````
+  </CodeGroup>
+</Expandable>
+
+<Callout kind="danger">Always verify webhook signatures before processing requests. Unverified webhooks can lead to security vulnerabilities and data corruption.</Callout>
+
+## Handling Webhook Deliveries
+
+Robust webhook handling requires implementing retry logic, duplicate prevention, and proper error responses. Product Hunt retries failed deliveries with exponential backoff.
+
+<ExpandableGroup>
+  <Expandable title="Retry Policy" default-open="false">
+    Failed webhook deliveries are retried up to 5 times with increasing delays (1s, 10s, 1m, 10m, 1h). Return a 2xx status code to acknowledge successful processing.
+  </Expandable>
+  <Expandable title="Duplicate Prevention" default-open="false">
+    Each webhook includes a unique `id` field. Store processed IDs to prevent duplicate processing of the same event.
+  </Expandable>
+  <Expandable title="Error Handling" default-open="false">
+    Return appropriate HTTP status codes (400 for bad requests, 500 for server errors) to help us debug delivery issues.
+  </Expandable>
+</ExpandableGroup>
+
+## Best Practices
+
+Following webhook best practices ensures reliable integrations and optimal performance. Consider these guidelines when implementing your webhook endpoints.
+
+<Expandable title="Performance Optimization" default-open="true">
+  Process webhook payloads asynchronously to avoid timeouts. Queue events for background processing if immediate responses aren't required.
+  
+  <Expandable title="Monitoring and Logging" default-open="false">
+    Log all webhook deliveries, including successes and failures. Set up monitoring alerts for delivery failures and unusual activity patterns.
+  </Expandable>
+</Expandable>
+
+<Callout kind="info">Test your webhook endpoints thoroughly using the test events available in the developer dashboard before enabling production traffic.</Callout>
